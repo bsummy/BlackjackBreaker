@@ -6,10 +6,10 @@ import random
 import doctest
 
 #global variables
+#change to display ranks with first as capital letter
 RANKS = ("ace", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "jack", "queen", "king")
 RANKS_NUM = (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13)
 SUITS = ("spades", "hearts", "diamonds", "clubs")
-#change to display ranks with first as capital letter
 
 #for conversion between values and names of cards
 #ace can be either 1 or 11 in blackjack, so the value is a tup which must be accessed at index 0: 1 and index 1: 11
@@ -118,18 +118,21 @@ class Deck:
         random.shuffle(self.deck_of_cards)
     
     def remove_card(self, card_remove):
+        print(card_remove)
+        print(self.deck_of_cards)
+        print(self.deck_of_cards.index(card_remove))
         self.deck_of_cards.pop(self.deck_of_cards.index(card_remove))
         return self.deck_of_cards
     
 class Hand(Deck):
     """ Hand Class with inheritance from Deck. remove_card, shuffle_deck, and draw_card can all be used. 
     """
-    def __init__(self, deck = Deck(), dealer = False):
+    def __init__(self, deck, card1 = None, card2 = None, dealer = False):
         self.dealer = dealer
         self.deck = deck
         self.num_cards_in_hand = 2
         #to play games with this deck, these can be changed to be inputs
-        self.card1 = deck.draw_card() 
+        self.card1 = deck.draw_card()
         self.card2 = deck.draw_card()
         self.cards_in_hand = [self.card1, self.card2]
         
@@ -208,42 +211,45 @@ class Hand(Deck):
             value += ace_values[1]
             index += 1 
         return value
-    
+
+    def is_better_hand(self, other): #compares the users hand against the dealers, and checks if user is greater than. Ties are false.
+        return self.calculate_hand() > other.calculate_hand()
+
+    def is_soft_hand(self):
+        soft_hand = False
+        for card in self.cards_in_hand:
+            if card.rank == "ace" and self.calculate_hand() > 21:
+                soft_hand = True
+        return soft_hand
+
     def add_card(self):
         """ () -> Hand but maybe list of strs
 
         >>> random.seed(11)
         >>> deck = Deck()
         >>> hand = Hand(deck)
-        >>> hand.add_card()
+        >>> hand.add_card().print_hand()
         ['Five of Diamonds', 'Two of Spades', 'Five of Hearts']
 
         >>> random.seed(12)
         >>> deck = Deck()
         >>> hand = Hand(deck)
-        >>> hand.add_card()
+        >>> hand.add_card().print_hand()
         ['Six of Spades', 'Ace of Clubs', 'Three of Spades']
 
         >>> random.seed(13)
         >>> deck = Deck()
         >>> hand = Hand(deck)
-        >>> hand.add_card()
+        >>> hand.add_card().print_hand()
         ['Eight of Clubs', 'Nine of Hearts', 'King of Clubs']
         """
         #only last card will be accessable with self.addtl_card
         card_drawn = (self.deck).draw_card()
         self.addtl_card = card_drawn
         self.cards_in_hand.append(self.addtl_card)
-        return self.print_hand()
-        
+        return self
+
+    
 if __name__ == "__main__":
-    deck_one = Deck()
-    deck_one.print_deck()
-    user_hand = Hand(deck_one, False)
-    print(user_hand)
-    print(user_hand.add_card())
-    print(user_hand.add_card())
-    print(user_hand.add_card())
-    print(user_hand.calculate_hand())
     doctest.testmod()
     #could add multiple decks in Deck Class
