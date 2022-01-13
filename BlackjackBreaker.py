@@ -1,14 +1,16 @@
-#Author: Bennett Summy
-#Blackjack Assistant: Recommends best move in a blackjack game based on available odds.
+""" Author: Bennett Summy
+Blackjack Assistant: Recommends best move in a blackjack game based on available odds.
 
-#Later Updates to be made:
-#import the spreadsheet into the code at the beginning to speed up the process.
-#add type contracts and descriptions to all functions
-#publish update to github, and add readme on potential updates to come - whenever I have time
-#auto-mode is roughly complete, need to make user-mode to make it usable in a real blackjack game
-#multiple decks?
-
-from ClassCardDeckHand import *
+Later Updates to be made:
+ - Import the spreadsheet into the code at the beginning to speed up the process.
+ - Add type contracts and descriptions to all functions.
+ - Publish update to github, and add readme on potential updates to come - whenever I have time.
+ - Auto-mode is roughly complete, need to make user-mode to make it usable in a real blackjack game.
+ - Use multiple decks in a standard game.
+"""
+from Card import *
+from Hand import *
+from Deck import *
 import copy
 import xlrd
 
