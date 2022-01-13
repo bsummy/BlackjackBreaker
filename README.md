@@ -2,9 +2,12 @@ Blackjack Breaker
 ---
 Author: Bennett Summy
 
+
+Purpose: 
 Virtual blackjack assistant to recommend optimal moves for the user. Moves are recommended based on blackjack "basic strategy." It is based on a standard
 dealer versus user blackjack match, with standard blackjack rules.
----
+
+
 When complete, the program will have two modes, Auto mode and Live mode.
 
 Auto Mode
@@ -17,13 +20,15 @@ Live Mode (incomplete)
   Usable in a live blackjack game to recommend the optimal move to the user. The user simply needs to enter their own hand, and the dealers up-card to begin 
   the sequence. From there a move will be recommended, and the result of that move will need to be input as well. (For example, if the first move recommends
   "Hit", the user will need to input the card that is drawn.)
----
+
+
 This project is coded completely in Python.
 
 Construtcted with self-created classes named Card, Deck, Hand. (Files Card.py, Hand.py, and Deck.py, respectively.) 
 Included also is the BlackjackBreakerChart.xls which has all available moves in basic stratagy.
 Finally, the BlackjackBreaker.py file which contains the bulk of the game code.
----
+
+
 Most Recent Update:
 
   The Housekeeping Update
@@ -37,19 +42,20 @@ Most Recent Update:
           -Unnessesary code was removed
           -This README was created!
 
+
 Later Updates (in no particular order)
 
-  The Speed Update
+  -The Speed Update
      Code is optimized to have a quicker runtime in Auto mode. 
      
-  The Auto Update
+  -The Auto Update
      The Live Mode is completed to allow games in real time. 
      
-  The Cheater Update
+  -The Cheater Update
      Introducing card counting to actively adjust odds based on what cards were drawn in previous hand. Will only make for slight improvements 
      in games with "old" decks, but an improvement nonetheless.
      
-  The Friends Update
+  -The Friends Update
      Playing with multiple people in Live Mode, and the user can input others hands to remove those cards from the stored deck. The more cards
      that are input increases the winning ability of the user.
----
+
