@@ -17,7 +17,7 @@ RANKS_AXIS = {"ace": "A", "two": "2", "three": "3", "four": "4", "five": "5", "s
 "Hard" hands, "Soft" hands, and "Split" hands for simplicity. Meant to exchange for user hands/rows.
 '''
 USER_AXIS_HARD = {"H 21" : 1, "H 20" : 2, "H 19" : 3, "H 18" : 4, "H 17" : 5, "H 16" : 6, "H 15" : 7, "H 14" : 8, "H 13" : 9, "H 12" : 10,\
-"H 11" : 11, "H 10" : 12, "H 9" : 13, "H 8" : 14, "H 7" : 15, "H 6" : 16, "H 5" : 17, "H 4": 37}
+"H 11" : 11, "H 10" : 12, "H 9" : 13, "H 8" : 14, "H 7" : 15, "H 6" : 16, "H 5" : 17, "H 4": 18}
 
 USER_AXIS_SOFT = {"S 21" : 19, "S 20" : 20, "S 19" : 21, "S 18" : 22, "S 17" : 23, "S 16" : 24, "S 15" : 25, "S 14" : 26, "S 13" : 27}
 
@@ -78,15 +78,15 @@ def chart_load():
     return chart_list
 
 def start_game():
-    ''' () -> Tup
+    ''' () -> Tup <Deck, Hand, Hand>
     Begins a game by creating a deck and dealing hands. 
     '''
     deck = Deck()
-    user_hand, dealer_hand = deal_cards(deck)
+    deck, user_hand, dealer_hand = deal_cards(deck)
     return deck, user_hand, dealer_hand
 
 def deal_cards(deck):
-    ''' (Deck) -> Tup <Hand, Hand>
+    ''' (Deck) -> Tup <Deck, Hand, Hand>
     Deals cards in order to the user and the dealer (for a two player game). Creates both hands, and returns them in a packed tuple.
     '''
     user_card1 = deck.draw_card()
@@ -96,7 +96,7 @@ def deal_cards(deck):
 
     user_hand = Hand(deck, user_card1, user_card2, False)
     dealer_hand = Hand(deck, dealer_card1, dealer_card2, True)
-    return user_hand, dealer_hand
+    return deck, user_hand, dealer_hand
 
 def remove_card(card_obj, deck):
     ''' (Card, Deck) -> Deck
@@ -126,19 +126,19 @@ def process_to_user_axis(user_hand, split_active, chart_list):
     if card1_rank == card2_rank and split_active:
         both_rank = RANKS_AXIS.get(card1_rank)
         user_axis = f"{both_rank}-{both_rank}"
-    elif user_hand.is_soft_hand() == True and user_hand.calculate_hand() <= 21:
-        user_axis = f"S {user_hand.calculate_hand()}"
-    elif user_hand.is_soft_hand() == False and user_hand.calculate_hand() <= 21:
-        user_axis = f"H {user_hand.calculate_hand()}"
+    elif user_hand.calculate_hand() <= 21:
+        hand_type = "H"
+        if user_hand.is_soft_hand():
+            hand_type = "S"
+        user_axis = f"{hand_type} {user_hand.calculate_hand()}"
     else: 
         user_axis = "bust"
     return user_axis
 
-def rec_move(deck, user_hand, dealer_hand, split_active, chart_list):
-    """ (Deck, Hand, Hand, bool) -> str
+def rec_move(user_hand, dealer_hand, split_active, chart_list):
+    """ (Hand, Hand, bool) -> str
     Takes two hands, one from the user and one from the dealer, and returns a move to the user from the chart.
     """
-    
     user_axis = process_to_user_axis(user_hand, split_active, chart_list)
     
     #many cards equal ten in backjack, changing as such to simplify
@@ -157,14 +157,10 @@ def complete_hands(deck, user_hand, dealer_hand, chart_result, chart_list):
     completed_hands = user_hand
     if chart_result == "split": #splits out the hand into two hands, and adds an extra card per hand
         user_hands = split(deck, user_hand)
-
         for hand in user_hands: #completes each hand one at a time
             while chart_result != "stand": #continues until a stand
-                chart_result = rec_move(deck, hand, dealer_hand, False, chart_list)
-                if chart_result == "split":
-                    chart_result = "hit"
-                chart_result_func = eval(chart_result)
-                hand = chart_result_func(deck, hand)
+                chart_result = rec_move(hand, dealer_hand, False, chart_list)
+                hand = eval(chart_result)(deck, user_hand)
                 if chart_result == "double": #ends on a double
                     break
         completed_hands = user_hands   
@@ -173,18 +169,12 @@ def complete_hands(deck, user_hand, dealer_hand, chart_result, chart_list):
         completed_hands = user_hand
     
     elif chart_result == "hit": #card is hit once
-        if len(user_hand.cards_in_hand) == 2:
-            split_active = True
-        else:
-            split_active = False
-        
+        split_active = (len(user_hand.cards_in_hand) == 2)
+
         while chart_result != "stand": #loops until a stand is encountered
-            if type(user_hand) == list:
-                print("hello")
-            chart_result = rec_move(deck, user_hand, dealer_hand, split_active, chart_list)
+            chart_result = rec_move(user_hand, dealer_hand, split_active, chart_list)
             split_active = False
-            chart_result_func = eval(chart_result)
-            user_hands = chart_result_func(deck, user_hand)
+            user_hands = eval(chart_result)(deck, user_hand)
             if chart_result == "double": #can end on a double
                 break
         completed_hands = user_hand
@@ -244,15 +234,13 @@ def chart_call(user_axis, dealer_up_card, chart_list):
     #turns the dealer axis into the style of columns
     dealer_col = dealer_axis.get(dealer_up_card)
 
-    chart_result = (chart_list[user_row] [dealer_col])
+    chart_result = (chart_list[user_row][dealer_col])
     return chart_result
 
 def add_to_score(user_score, dealer_score):
     """ (int, int) -> None
     Controls the automated testing system and logging the wins if the user/dealer/ties
     """
-    #print("User: " + str(user_score))
-    #print("Dealer: " + str(dealer_score))
     if user_score > 21 or (user_score < dealer_score and dealer_score <= 21):
         test_results["Dealer Wins"] += 1
     elif dealer_score > 21 or (user_score > dealer_score and user_score <= 21):
@@ -271,7 +259,7 @@ def test_game(chart_list):
     deck, user_hand, dealer_hand = start_game()
 
     #checks into the chart for the first move, completes user_hand(s)
-    chart_result = rec_move(deck, user_hand, dealer_hand, True, chart_list)
+    chart_result = rec_move(user_hand, dealer_hand, True, chart_list)
     user_hands = complete_hands(deck, user_hand, dealer_hand, chart_result, chart_list)
 
     #ends dealers turn that's automated to 17

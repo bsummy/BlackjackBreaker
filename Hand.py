@@ -6,7 +6,7 @@ using .draw_card() for auto, but user mode will accept card input. More cards ca
 over time, and accessed through cards_in_hand. Specifically built for use in Blackjack, so aspects are
 customized for that purpose.
 """
-from Deck import Deck as ClassDeck
+from Deck import *
 from Card import *
 
 #for conversion between names of cards and blackjack value cards
@@ -14,16 +14,21 @@ from Card import *
 #all face cards are worth 10 in blackjack
 RANKS_NAMES = {"ace": (11, 1), "two": 2, "three": 3, "four": 4, "five": 5, "six": 6, "seven": 7, "eight": 8, "nine": 9, "ten": 10, "jack": 10, "queen": 10, "king": 10}
 
-class Hand(ClassDeck):
+class Hand(Deck):
     """ Hand Class with inheritance from Deck. remove_card, shuffle_deck, and draw_card can all be used. 
     """
     def __init__(self, deck, card1 = None, card2 = None, dealer = False):
         self.dealer = dealer
         self.deck = deck
         self.num_cards_in_hand = 2
-        #to play games with this deck, these can be changed to be inputs
-        self.card1 = deck.draw_card()
-        self.card2 = deck.draw_card()
+        
+        if card1 == None:
+            card1 = deck.draw_card()
+        if card2 == None:
+            card2 = deck.draw_card()  
+
+        self.card1 = card1
+        self.card2 = card2
         self.cards_in_hand = [self.card1, self.card2]
         
     def __str__(self):
@@ -34,6 +39,33 @@ class Hand(ClassDeck):
             return f"Dealer's Hand: {str(self.card1)} and ???"
         return f"Your Hand: {str(self.card1)} and {str(self.card2)}"
     
+    def add_card(self):
+        """ () -> Hand
+
+        >>> random.seed(11)
+        >>> deck = ClassDeck()
+        >>> hand = Hand(deck)
+        >>> hand.add_card().print_hand()
+        ['Five of Diamonds', 'Two of Spades', 'Five of Hearts']
+
+        >>> random.seed(12)
+        >>> deck = ClassDeck()
+        >>> hand = Hand(deck)
+        >>> hand.add_card().print_hand()
+        ['Six of Spades', 'Ace of Clubs', 'Three of Spades']
+
+        >>> random.seed(13)
+        >>> deck = ClassDeck()
+        >>> hand = Hand(deck)
+        >>> hand.add_card().print_hand()
+        ['Eight of Clubs', 'Nine of Hearts', 'King of Clubs']
+        """
+        #only last card will be accessable with self.addtl_card
+        card_drawn = (self.deck).draw_card()
+        self.addtl_card = card_drawn
+        self.cards_in_hand.append(self.addtl_card)
+        return self
+  
     def print_hand(self): 
         """ () -> Hand
         Prints the hand of the user to avoid printing the location of the memory. Very similar to print_deck(). 
@@ -121,29 +153,3 @@ class Hand(ClassDeck):
                 return soft_hand
         return soft_hand
 
-    def add_card(self):
-        """ () -> Hand
-
-        >>> random.seed(11)
-        >>> deck = ClassDeck()
-        >>> hand = Hand(deck)
-        >>> hand.add_card().print_hand()
-        ['Five of Diamonds', 'Two of Spades', 'Five of Hearts']
-
-        >>> random.seed(12)
-        >>> deck = ClassDeck()
-        >>> hand = Hand(deck)
-        >>> hand.add_card().print_hand()
-        ['Six of Spades', 'Ace of Clubs', 'Three of Spades']
-
-        >>> random.seed(13)
-        >>> deck = ClassDeck()
-        >>> hand = Hand(deck)
-        >>> hand.add_card().print_hand()
-        ['Eight of Clubs', 'Nine of Hearts', 'King of Clubs']
-        """
-        #only last card will be accessable with self.addtl_card
-        card_drawn = (self.deck).draw_card()
-        self.addtl_card = card_drawn
-        self.cards_in_hand.append(self.addtl_card)
-        return self
